@@ -2,6 +2,7 @@ import React from 'react';
 import { useGameStore, ElementType } from '../store/gameStore';
 import { motion, AnimatePresence } from 'motion/react';
 import { useAccount, useConnect, useDisconnect } from 'wagmi';
+import { SignInWithSiwe } from './SignInWithSiwe';
 
 export function MainMenu() {
   const { setGameState } = useGameStore();
@@ -54,6 +55,7 @@ export function MainMenu() {
                 <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse"></div>
                 <span className="text-xs font-mono text-gray-300 truncate">{address}</span>
               </div>
+              <SignInWithSiwe />
               <button 
                  onClick={() => disconnect()}
                  className="w-full py-2 text-xs font-bold uppercase tracking-wider bg-white/5 hover:bg-white/10 text-white rounded-xl transition border border-white/10"

@@ -3,29 +3,53 @@ import { useGameStore } from '../store/gameStore';
 import { motion } from 'motion/react';
 import { useERC8021Transaction } from '../lib/erc8021';
 import { parseEther } from 'viem';
-import { useAccount } from 'wagmi';
+import { useAccount, useSignMessage, usePublicClient } from 'wagmi';
+import { createSiweMessage, generateSiweNonce } from 'viem/siwe';
 
 export function GameOver() {
   const { score, resetGame } = useGameStore();
-  const { isConnected } = useAccount();
+  const { address, chainId, isConnected } = useAccount();
   const { sendAttributedTransaction, isPending } = useERC8021Transaction();
   const [submitted, setSubmitted] = useState(false);
+  const [isSigning, setIsSigning] = useState(false);
+  const { signMessageAsync } = useSignMessage();
+  const publicClient = usePublicClient();
 
   const handleSubmitScore = async () => {
+    if (!address || !chainId || !publicClient) return;
+    
     try {
-      // Mock contract Interaction - We just send a 0 value transaction to ourselves with the score as data
-      // In a real app we'd use useERC8021BatchTransaction to call a Leaderboard contract
-      // But standard sendTransaction with appended attribution code validates ERC-8021 implementation.
+      setIsSigning(true);
+      // Construct a SIWE message embedding the score as a statement
+      // and asking user to sign to verify it's them.
+      const nonce = generateSiweNonce();
+      const message = createSiweMessage({
+        address,
+        chainId,
+        domain: window.location.host,
+        nonce,
+        statement: `I am submitting my high score of ${score} to Batch Wizard.`,
+        uri: window.location.origin,
+        version: '1',
+      });
+
+      const signature = await signMessageAsync({ account: address, message });
+      const valid = await publicClient.verifySiweMessage({ message, signature });
       
+      if (!valid) throw new Error("SIWE signature invalid");
+
+      setIsSigning(false);
+
+      // Submit actual transaction to chain
       const tx = await sendAttributedTransaction({
-        to: '0x0000000000000000000000000000000000000000', // Burn address for mock score submission
+        to: '0x0000000000000000000000000000000000000000', // Mock score contract
         value: parseEther('0'),
       });
       console.log("Score submitted TX:", tx);
       setSubmitted(true);
     } catch (e) {
       console.error(e);
-      // Even if failed (e.g. user rejected), we just show error or ignore
+      setIsSigning(false);
     }
   };
 
@@ -47,13 +71,13 @@ export function GameOver() {
         {isConnected ? (
           <button 
             onClick={handleSubmitScore}
-            disabled={isPending || submitted || score === 0}
+            disabled={isPending || isSigning || submitted || score === 0}
             className={`w-full py-4 text-xs tracking-widest uppercase font-bold rounded-xl shadow-lg transition-all mb-4 border border-transparent
               ${submitted ? 'bg-green-500/20 text-green-400 border-green-500/30 cursor-not-allowed' : 
-                isPending ? 'bg-white/5 text-white/50 border-white/10 cursor-wait' : 
+                (isPending || isSigning) ? 'bg-white/5 text-white/50 border-white/10 cursor-wait' : 
                 'bg-gradient-to-r from-purple-600 to-blue-600 text-white shadow-xl shadow-purple-600/40 hover:scale-105 active:scale-95 border-white/10'}`}
           >
-            {submitted ? 'SCORE SUBMITTED (ONCHAIN)' : isPending ? 'TRANSACTING...' : 'SAVE SCORE ONCHAIN'}
+            {submitted ? 'SCORE SAVED' : isSigning ? 'SIGNING...' : isPending ? 'TRANSACTING...' : 'SAVE SCORE (SIWE + ONCHAIN)'}
           </button>
         ) : (
           <div className="w-full text-center p-4 bg-white/5 border border-white/10 text-white/40 rounded-xl mb-4 text-[10px] uppercase tracking-widest font-semibold flex items-center justify-center">
