@@ -27,6 +27,14 @@ Batch Wizard is an endless survival game. By matching and dragging elements, pla
 ## Registration Meta details
 <meta name="base:app_id" content="68f3f2c9b6320e0dd0819ad1" />
 
+## AI Agent & ERC-8004 Integration
+This application also acts as the **BatchWizards Orchestrator** AI Agent running on Base platform, designed for ERC-8004 standard compliance.
+- **Agent Card**: `/.well-known/agent-card.json` (ERC-8004 Registration V1)
+- **MCP Endpoint (Model Context Protocol)**: `/api/mcp`
+- **Main Agent API**: `/api/agent`
+
+The agent is capable of `batch-processing`, `multi-wizard-management`, `task-automation` and executing MCP commands on-chain.
+
 ## Usage
 
 Connect your wallet using standard connectors or **Base Account** (via the Smart Wallet injector). Complete a round of Batch Wizard and hit **"Save Score"** to test the full SIWE verification and ERC-8021 transaction mapping.
