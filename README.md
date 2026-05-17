@@ -1,40 +1,59 @@
-# Batch Wizard
+# BatchWizards Orchestrator & Batch Wizard Game
 
-A magical arcade game where you cast batch spells to survive endless enemies, featuring onchain ERC-8021 integration. Built on Base Mainnet.
+A magical arcade game and intelligent Orchestrator Agent running on the Base platform. This project features an endless survival game where players cast batch spells to defeat enemies, alongside a fully integrated ERC-8004 compliant AI agent designed to automate tasks and manage batch processes.
 
-## Overview
+## Project Overview
 
-Batch Wizard is an endless survival game. By matching and dragging elements, players can cast batch spells to defeat approaching enemies. This project showcases how to seamlessly integrate on-chain functionality into web games.
+Batch Wizard is a fast-paced survival game where players match elements to cast powerful spells. Beyond the gameplay, the application acts as the **BatchWizards Orchestrator**, an active Model Context Protocol (MCP) server managing on-chain and off-chain operations. This seamless combination demonstrates robust on-chain integration into web games and AI agent protocols.
 
 ## Tech Stack
 
-- **Framework**: Next.js 15 App Router (mocked here with Vite/React for the preview)
+- **Frontend**: Next.js App Router Architecture
 - **Styling**: Tailwind CSS
 - **Animations**: Framer Motion
 - **Game Engine**: Custom HTML5 Canvas engine
-- **Web3 Integrations**:
-  - `wagmi` + `viem` for interacting with EVM networks.
-  - `@base-org/account` for smart wallet support (Base Account integration).
-  - ERC-8021 tracking via `dataSuffix` Builder Code attachment.
+- **Web3 & Blockchain**:
+  - Base Mainnet support
+  - `wagmi` + `viem` for interacting with EVM networks
+  - `@base-org/account` for smart wallet functionality
+  - Builder Code (`bc_iikhcsnm`) for ERC-8021 tracking and on-chain analytics
+  - Sign-In with Ethereum (SIWE) for secure verification
+  - High score on-chain submissions tracking and basic transaction flows
 
-## On-chain Features
+## AI Agent & Orchestrator Features
 
-1. **ERC-8021 Attribution**: Automatically appends the builder code \`bc_iikhcsnm\` to the `data` payload of on-chain transactions submitted through the app.
-2. **SIWE (Sign-In with Ethereum)**: Securely proves wallet ownership before accessing profile actions and submitting scores.
-3. **On-chain Score Strategy**: Users can sign a SIWE message locally verifying their score statement and subsequently push an attributed on-chain transaction indicating completion.
-4. **"Say GM" Transaction**: Provides a quick debug / interactive transaction hook using the connected wallet, also tracked by ERC-8021 suffix. 
+The built-in **BatchWizards Orchestrator** connects to platforms supporting ERC-8004. 
+Its core capabilities include:
+- `batch-processing`: Handling mass transactions and workflows
+- `multi-wizard-management`: Managing character states and permissions
+- `task-automation`: Executing background daily operations
+- `mcp-command-execution`: Resolving direct commands safely via the Model Context Protocol
 
-## Registration Meta details
+### Agent Registration
+The AI agent is openly discoverable and officially registered as an ERC-8004 agent:
+- **Registration Card**: `/.well-known/agent-card.json` 
+- **Type**: `https://eips.ethereum.org/EIPS/eip-8004#registration-v1`
+
+### MCP Connection Guide
+To interact with the agent as an orchestrator or LLM client, point your MCP connection instance to the local API:
+- **Primary Endpoint**: `/api/mcp`
+- **Agent API**: `/api/agent`
+- **Supported Methods**: Supports MCP `initialize`, `tools/list`, and `tools/call`. (Currently utilizing placeholder simulation for specific racing context tools while awaiting full implementation from the game modules).
+
+## How to Run Locally
+
+1. **Install Dependencies**:
+   ```bash
+   npm install
+   ```
+2. **Start Development Server**:
+   ```bash
+   npm run dev
+   ```
+3. **Play the Game**:
+   Navigate to `localhost:3000` to interact with the game UI. Connect your smart wallet or EOAs, play the game, and save your score securely on-chain.
+4. **Test the Agent endpoints**:
+   - `GET http://localhost:3000/api/agent`
+   - `GET/POST http://localhost:3000/api/mcp`
+
 <meta name="base:app_id" content="68f3f2c9b6320e0dd0819ad1" />
-
-## AI Agent & ERC-8004 Integration
-This application also acts as the **BatchWizards Orchestrator** AI Agent running on Base platform, designed for ERC-8004 standard compliance.
-- **Agent Card**: `/.well-known/agent-card.json` (ERC-8004 Registration V1)
-- **MCP Endpoint (Model Context Protocol)**: `/api/mcp`
-- **Main Agent API**: `/api/agent`
-
-The agent is capable of `batch-processing`, `multi-wizard-management`, `task-automation` and executing MCP commands on-chain.
-
-## Usage
-
-Connect your wallet using standard connectors or **Base Account** (via the Smart Wallet injector). Complete a round of Batch Wizard and hit **"Save Score"** to test the full SIWE verification and ERC-8021 transaction mapping.
