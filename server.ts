@@ -21,14 +21,92 @@ async function startServer() {
     });
   });
 
+  app.options("/api/mcp", (req, res) => {
+    res.header('Access-Control-Allow-Origin', '*');
+    res.header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+    res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+    res.status(204).end();
+  });
+
   app.post("/api/mcp", (req, res) => {
+    res.header('Access-Control-Allow-Origin', '*');
+    
     try {
+      const body = req.body;
+
+      if (body.method === "initialize") {
+        res.json({
+          protocolVersion: "2024-11-05",
+          capabilities: { tools: { listChanged: false } },
+          serverInfo: {
+            name: "BatchWizards Orchestrator",
+            version: "1.0.0"
+          }
+        });
+        return;
+      }
+
+      if (body.method === "tools/list") {
+        res.json({
+          tools: [
+            {
+              name: "get_race_status",
+              description: "[PLACEHOLDER] Missing implementation details from source",
+              inputSchema: { type: "object", properties: {} }
+            },
+            {
+              name: "start_race",
+              description: "[PLACEHOLDER] Missing implementation details from source",
+              inputSchema: { type: "object", properties: {} }
+            },
+            {
+              name: "get_leaderboard",
+              description: "[PLACEHOLDER] Missing implementation details from source",
+              inputSchema: { type: "object", properties: {} }
+            },
+            {
+              name: "optimize_speed",
+              description: "[PLACEHOLDER] Missing implementation details from source",
+              inputSchema: { type: "object", properties: {} }
+            },
+            {
+              name: "get_track_info",
+              description: "[PLACEHOLDER] Missing implementation details from source",
+              inputSchema: { type: "object", properties: {} }
+            }
+          ]
+        });
+        return;
+      }
+
+      if (body.method === "tools/call") {
+        res.json({
+          content: [
+            {
+              type: "text",
+              text: `[PLACEHOLDER] Tool implementation for ${body.params?.name} missing`
+            }
+          ]
+        });
+        return;
+      }
+
+      if (body.method === "prompts/list") {
+        res.json({ prompts: [] });
+        return;
+      }
+
+      if (body.method === "resources/list") {
+        res.json({ resources: [] });
+        return;
+      }
+
       res.json({
         status: "success",
         message: "MCP command received",
         agent: "BatchWizards Orchestrator",
         receivedAt: new Date().toISOString(),
-        payload: req.body
+        payload: body
       });
     } catch (error) {
       res.status(400).json({ error: "Invalid MCP request" });
@@ -44,6 +122,21 @@ async function startServer() {
       platform: "BatchWizards",
       version: "1.0.0"
     });
+  });
+
+  app.post("/api/agent", (req, res) => {
+    try {
+      res.json({
+        name: "BatchWizards Orchestrator",
+        status: "active",
+        wallet: "0x29536D0bc1004ab274c4F0F59734Ad74D4559b7B",
+        platform: "BatchWizards",
+        version: "1.0.0",
+        receivedPayload: req.body
+      });
+    } catch (error) {
+      res.status(400).json({ error: "Invalid request payload" });
+    }
   });
 
   // Vite middleware for development or static serving for production
