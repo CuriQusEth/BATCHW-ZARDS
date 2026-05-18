@@ -7,7 +7,7 @@ import { ReactNode, useState } from 'react';
 const config = createConfig({
   chains: [base],
   connectors: [
-    injected(),
+    injected({ unstable_mipd: false } as any),
     baseAccount({
       appName: 'Batch Wizard',
     }),

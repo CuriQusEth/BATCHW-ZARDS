@@ -24,9 +24,9 @@
     "react": "^19.0.1",
     "react-dom": "^19.0.1",
     "react-joystick-component": "^6.2.1",
-    "viem": "^2.48.8",
+    "viem": "^2.49.3",
     "vite": "^6.2.3",
-    "wagmi": "^3.6.9",
+    "wagmi": "^3.6.15",
     "zustand": "^5.0.12"
   },
   "devDependencies": {
@@ -34,6 +34,7 @@
     "@types/node": "^22.14.0",
     "autoprefixer": "^10.4.21",
     "esbuild": "^0.28.0",
+    "next": "^16.2.6",
     "tailwindcss": "^4.1.14",
     "tsx": "^4.21.0",
     "typescript": "~5.8.2",

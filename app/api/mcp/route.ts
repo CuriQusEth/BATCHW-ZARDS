@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 
 export async function GET() {
-  return NextResponse.json({
+  const res = NextResponse.json({
     protocol: "MCP",
     version: "1.0.0",
     name: "BatchWizards MCP Endpoint",
@@ -10,6 +10,11 @@ export async function GET() {
     capabilities: ["batch-processing", "multi-wizard-management", "task-automation"],
     timestamp: new Date().toISOString()
   });
+  
+  res.headers.set('Access-Control-Allow-Origin', '*');
+  res.headers.set('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+  res.headers.set('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  return res;
 }
 
 export async function POST(req: Request) {

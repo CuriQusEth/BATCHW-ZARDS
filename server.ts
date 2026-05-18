@@ -8,8 +8,8 @@ async function startServer() {
 
   app.use(express.json());
 
-  // API Route: /api/mcp
-  app.get("/api/mcp", (req, res) => {
+  // API Route: /api/mcp and /app/api/mcp
+  const handleMcpGet = (req: express.Request, res: express.Response) => {
     res.json({
       protocol: "MCP",
       version: "1.0.0",
@@ -19,16 +19,20 @@ async function startServer() {
       capabilities: ["batch-processing", "multi-wizard-management", "task-automation"],
       timestamp: new Date().toISOString()
     });
-  });
+  };
+  app.get("/api/mcp", handleMcpGet);
+  app.get("/app/api/mcp", handleMcpGet);
 
-  app.options("/api/mcp", (req, res) => {
+  const handleMcpOptions = (req: express.Request, res: express.Response) => {
     res.header('Access-Control-Allow-Origin', '*');
     res.header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
     res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
     res.status(204).end();
-  });
+  };
+  app.options("/api/mcp", handleMcpOptions);
+  app.options("/app/api/mcp", handleMcpOptions);
 
-  app.post("/api/mcp", (req, res) => {
+  const handleMcpPost = (req: express.Request, res: express.Response) => {
     res.header('Access-Control-Allow-Origin', '*');
     
     try {
@@ -111,10 +115,12 @@ async function startServer() {
     } catch (error) {
       res.status(400).json({ error: "Invalid MCP request" });
     }
-  });
+  };
+  app.post("/api/mcp", handleMcpPost);
+  app.post("/app/api/mcp", handleMcpPost);
 
-  // API Route: /api/agent
-  app.get("/api/agent", (req, res) => {
+  // API Route: /api/agent and /app/api/agent
+  const handleAgentGet = (req: express.Request, res: express.Response) => {
     res.json({
       name: "BatchWizards Orchestrator",
       status: "active",
@@ -122,9 +128,11 @@ async function startServer() {
       platform: "BatchWizards",
       version: "1.0.0"
     });
-  });
+  };
+  app.get("/api/agent", handleAgentGet);
+  app.get("/app/api/agent", handleAgentGet);
 
-  app.post("/api/agent", (req, res) => {
+  const handleAgentPost = (req: express.Request, res: express.Response) => {
     try {
       res.json({
         name: "BatchWizards Orchestrator",
@@ -137,7 +145,9 @@ async function startServer() {
     } catch (error) {
       res.status(400).json({ error: "Invalid request payload" });
     }
-  });
+  };
+  app.post("/api/agent", handleAgentPost);
+  app.post("/app/api/agent", handleAgentPost);
 
   // Vite middleware for development or static serving for production
   if (process.env.NODE_ENV !== "production") {
