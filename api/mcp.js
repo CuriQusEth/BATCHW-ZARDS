@@ -25,72 +25,89 @@ export default function handler(req, res) {
 
       if (body.method === "initialize") {
         return res.status(200).json({
-          protocolVersion: "2024-11-05",
-          capabilities: { tools: { listChanged: false } },
-          serverInfo: {
-            name: "BatchWizards Orchestrator",
-            version: "1.0.0"
+          jsonrpc: "2.0",
+          id: body.id,
+          result: {
+            protocolVersion: "2024-11-05",
+            capabilities: { tools: { listChanged: false }, prompts: {}, resources: {} },
+            serverInfo: {
+              name: "BatchWizards Orchestrator",
+              version: "1.0.0"
+            }
           }
         });
       }
 
       if (body.method === "tools/list") {
         return res.status(200).json({
-          tools: [
-            {
-              name: "get_race_status",
-              description: "[PLACEHOLDER] Missing implementation details from source",
-              inputSchema: { type: "object", properties: {} }
-            },
-            {
-              name: "start_race",
-              description: "[PLACEHOLDER] Missing implementation details from source",
-              inputSchema: { type: "object", properties: {} }
-            },
-            {
-              name: "get_leaderboard",
-              description: "[PLACEHOLDER] Missing implementation details from source",
-              inputSchema: { type: "object", properties: {} }
-            },
-            {
-              name: "optimize_speed",
-              description: "[PLACEHOLDER] Missing implementation details from source",
-              inputSchema: { type: "object", properties: {} }
-            },
-            {
-              name: "get_track_info",
-              description: "[PLACEHOLDER] Missing implementation details from source",
-              inputSchema: { type: "object", properties: {} }
-            }
-          ]
+          jsonrpc: "2.0",
+          id: body.id,
+          result: {
+            tools: [
+              {
+                name: "get_race_status",
+                description: "[PLACEHOLDER] Missing implementation details from source",
+                inputSchema: { type: "object", properties: {} }
+              },
+              {
+                name: "start_race",
+                description: "[PLACEHOLDER] Missing implementation details from source",
+                inputSchema: { type: "object", properties: {} }
+              },
+              {
+                name: "get_leaderboard",
+                description: "[PLACEHOLDER] Missing implementation details from source",
+                inputSchema: { type: "object", properties: {} }
+              },
+              {
+                name: "optimize_speed",
+                description: "[PLACEHOLDER] Missing implementation details from source",
+                inputSchema: { type: "object", properties: {} }
+              },
+              {
+                name: "get_track_info",
+                description: "[PLACEHOLDER] Missing implementation details from source",
+                inputSchema: { type: "object", properties: {} }
+              }
+            ]
+          }
         });
       }
 
       if (body.method === "tools/call") {
         return res.status(200).json({
-          content: [
-            {
-              type: "text",
-              text: `[PLACEHOLDER] Tool implementation for ${body.params?.name} missing`
-            }
-          ]
+          jsonrpc: "2.0",
+          id: body.id,
+          result: {
+            content: [
+              {
+                type: "text",
+                text: `[PLACEHOLDER] Tool implementation for ${body.params?.name} missing`
+              }
+            ]
+          }
         });
       }
 
       if (body.method === "prompts/list") {
-        return res.status(200).json({ prompts: [] });
+        return res.status(200).json({ jsonrpc: "2.0", id: body.id, result: { prompts: [] } });
       }
 
       if (body.method === "resources/list") {
-        return res.status(200).json({ resources: [] });
+        return res.status(200).json({ jsonrpc: "2.0", id: body.id, result: { resources: [] } });
+      }
+
+      if (body.method === "notifications/initialized") {
+        return res.status(200).json({ jsonrpc: "2.0" });
       }
 
       return res.status(200).json({
-        status: "success",
-        message: "MCP command received",
-        agent: "BatchWizards Orchestrator",
-        receivedAt: new Date().toISOString(),
-        payload: body
+        jsonrpc: "2.0",
+        id: body.id,
+        error: {
+          code: -32601,
+          message: "Method not found"
+        }
       });
     } catch (error) {
       return res.status(400).json({ error: "Invalid MCP request" });
