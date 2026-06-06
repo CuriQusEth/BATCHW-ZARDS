@@ -77,7 +77,7 @@ export function GameOver() {
                 (isPending || isSigning) ? 'bg-white/5 text-white/50 border-white/10 cursor-wait' : 
                 'bg-gradient-to-r from-purple-600 to-blue-600 text-white shadow-xl shadow-purple-600/40 hover:scale-105 active:scale-95 border-white/10'}`}
           >
-            {submitted ? 'SCORE SAVED' : isSigning ? 'SIGNING...' : isPending ? 'TRANSACTING...' : 'SAVE SCORE (SIWE + ONCHAIN)'}
+            {submitted ? 'RUN RECORDED' : isSigning ? 'SIGNING...' : isPending ? 'TRANSACTING...' : 'RECORD THIS BATCH RUN ON-CHAIN'}
           </button>
         ) : (
           <div className="w-full text-center p-4 bg-white/5 border border-white/10 text-white/40 rounded-xl mb-4 text-[10px] uppercase tracking-widest font-semibold flex items-center justify-center">

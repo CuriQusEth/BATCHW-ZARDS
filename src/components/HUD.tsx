@@ -1,19 +1,43 @@
-import React from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import { useGameStore, ElementType } from '../store/gameStore';
-import { Flame, Snowflake, Zap, Leaf, X } from 'lucide-react';
+import { Flame, Droplet, Wind, Mountain, X, Zap } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 
 export function HUD() {
-  const { score, health, maxHealth, batchQueue, addToBatch, clearBatch, castBatch } = useGameStore();
-
+  const { score, health, maxHealth, batchGrid, setGridSlot, clearBatch, castBatch, combo } = useGameStore();
+  const [draggedElement, setDraggedElement] = useState<ElementType | null>(null);
+  const gridRef = useRef<HTMLDivElement>(null);
+  
   const handleCast = () => {
-    if (batchQueue.length === 0) return;
     const batch = castBatch();
-    // Dispatch to canvas engine
+    if (batch.length === 0) return;
     window.dispatchEvent(new CustomEvent('game:cast', { detail: batch }));
-    // Haptic feedback if available
-    if (navigator.vibrate) navigator.vibrate(100);
+    if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
   };
+
+  const handleDragEnd = (event: any, info: any, type: ElementType) => {
+    const gridEl = gridRef.current;
+    if (!gridEl) return;
+    
+    // Check if dropping on a specific slot in grid
+    const rect = gridEl.getBoundingClientRect();
+    const cellWidth = rect.width / 3;
+    const cellHeight = rect.height / 3;
+    
+    const dropX = info.point.x - rect.left;
+    const dropY = info.point.y - rect.top;
+    
+    if (dropX >= 0 && dropX <= rect.width && dropY >= 0 && dropY <= rect.height) {
+      const col = Math.floor(dropX / cellWidth);
+      const row = Math.floor(dropY / cellHeight);
+      const index = row * 3 + col;
+      if (index >= 0 && index < 9) {
+        setGridSlot(index, type);
+      }
+    }
+  };
+
+  const elementsCount = batchGrid.filter(e => e !== null).length;
 
   return (
     <div className="absolute inset-0 pointer-events-none z-10 flex flex-col justify-between p-4 sm:p-6">
@@ -29,6 +53,15 @@ export function HUD() {
           >
             {score.toLocaleString()}
           </motion.div>
+          {combo > 0 && (
+            <motion.div
+              initial={{ opacity: 0, x: -10 }}
+              animate={{ opacity: 1, x: 0 }}
+              className="text-xs font-bold text-yellow-400"
+            >
+              Combo x{combo}
+            </motion.div>
+          )}
         </div>
 
         <div className="w-48 bg-white/5 backdrop-blur-md rounded-xl border border-white/10 shadow-lg p-2">
@@ -45,32 +78,63 @@ export function HUD() {
       </div>
 
       {/* Bottom Panel (Spells & Batch Grid) */}
-      <div className="pointer-events-auto self-end flex flex-col items-end gap-4 pb-10 pr-4 sm:pb-0 sm:pr-0">
+      <div className="pointer-events-auto self-end flex items-end gap-6 pb-10 pr-4 sm:pb-0 sm:pr-0">
         
-        {/* Batch Grid */}
-        <div className="flex flex-col items-end gap-2 bg-white/5 p-3 rounded-2xl border border-white/10 shadow-2xl backdrop-blur-2xl">
-          <div className="flex items-center gap-2 mb-1 pl-2">
-            <span className="text-[10px] font-bold text-purple-300/60 tracking-widest uppercase flex-1">Batch Queue</span>
-            {batchQueue.length > 0 && (
+        {/* Elements Sidebar */}
+        <div className="flex flex-col gap-3 bg-white/5 p-3 rounded-2xl backdrop-blur-xl border border-white/10 shadow-lg">
+          {(['FIRE', 'WATER', 'WIND', 'EARTH'] as ElementType[]).map((type) => (
+            <motion.div
+              key={type}
+              drag
+              dragSnapToOrigin
+              onDragStart={() => setDraggedElement(type)}
+              onDragEnd={(e, info) => {
+                 handleDragEnd(e, info, type);
+                 setDraggedElement(null);
+              }}
+              whileDrag={{ scale: 1.2, zIndex: 50 }}
+              className={`w-14 h-14 rounded-xl flex items-center justify-center shadow-lg transform active:scale-90 touch-none ${elementsCount >= 4 ? 'opacity-50 cursor-not-allowed' : 'cursor-grab'}`}
+              style={{ background: getElementBg(type), border: `2px solid ${getElementBorder(type)}`, boxShadow: `0 0 15px ${getElementShadow(type)}` }}
+            >
+              <ElementIcon type={type} className="text-white drop-shadow-md pointer-events-none" size={24} />
+            </motion.div>
+          ))}
+        </div>
+
+        {/* Batch Grid Area */}
+        <div className="flex flex-col items-center gap-2 bg-white/5 p-4 rounded-2xl border border-white/10 shadow-2xl backdrop-blur-2xl">
+          <div className="flex items-center w-full justify-between mb-1">
+            <span className="text-[10px] font-bold text-purple-300/60 tracking-widest uppercase">Batch Craft Grid ({elementsCount}/4)</span>
+            {elementsCount > 0 && (
                <button onClick={clearBatch} className="text-white/50 hover:text-white transition p-1 bg-white/5 border border-white/10 rounded-lg">
                  <X size={14} />
                </button>
             )}
           </div>
           
-          <div className="flex gap-2">
-            {[0, 1, 2, 3].map((i) => (
-              <div key={i} className="w-12 h-12 bg-white/5 rounded-xl border-2 border-dashed border-white/20 flex items-center justify-center relative shadow-inner">
+          <div ref={gridRef} className="grid grid-cols-3 grid-rows-3 gap-2 bg-black/40 p-2 rounded-xl relative">
+            <AnimatePresence>
+              {draggedElement && (
+                 <motion.div 
+                   initial={{ opacity: 0 }} 
+                   animate={{ opacity: 1 }} 
+                   exit={{ opacity: 0 }}
+                   className="absolute inset-0 border-2 border-dashed border-purple-500 rounded-xl z-0 pointer-events-none" 
+                 />
+              )}
+            </AnimatePresence>
+            {[...Array(9)].map((_, i) => (
+              <div key={i} onClick={() => setGridSlot(i, null)} className="w-12 h-12 bg-white/5 rounded-xl border border-white/10 flex items-center justify-center relative shadow-inner cursor-pointer hover:bg-white/10">
                 <AnimatePresence>
-                  {batchQueue[i] && (
+                  {batchGrid[i] && (
                     <motion.div
                       initial={{ scale: 0, rotate: -45 }}
                       animate={{ scale: 1, rotate: 0 }}
                       exit={{ scale: 0, opacity: 0 }}
                       className="absolute inset-0 m-0 rounded-xl flex items-center justify-center shadow-lg"
-                      style={{ background: getElementBg(batchQueue[i]), boxShadow: `0 0 15px ${getElementShadow(batchQueue[i])}` }}
+                      style={{ background: getElementBg(batchGrid[i]!), boxShadow: `0 0 15px ${getElementShadow(batchGrid[i]!)}` }}
                     >
-                      <ElementIcon type={batchQueue[i]} size={20} className="text-white drop-shadow-md" />
+                      <ElementIcon type={batchGrid[i]!} size={20} className="text-white drop-shadow-md" />
                     </motion.div>
                   )}
                 </AnimatePresence>
@@ -80,9 +144,9 @@ export function HUD() {
 
           <button 
             onClick={handleCast}
-            disabled={batchQueue.length === 0}
+            disabled={elementsCount === 0}
             className={`w-full mt-2 py-3 rounded-xl font-black text-lg tracking-[0.2em] transform transition-all flex items-center justify-center gap-2
-              ${batchQueue.length > 0 
+              ${elementsCount > 0 
                 ? 'bg-gradient-to-r from-purple-600 to-blue-600 text-white shadow-xl shadow-purple-600/40 hover:scale-105 active:scale-95' 
                 : 'bg-white/5 text-white/30 cursor-not-allowed border border-white/10'}`}
           >
@@ -90,20 +154,6 @@ export function HUD() {
           </button>
         </div>
 
-        {/* Elements */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 bg-white/5 p-3 rounded-2xl backdrop-blur-xl border border-white/10 shadow-lg">
-          {(['FIRE', 'ICE', 'LIGHTNING', 'NATURE'] as ElementType[]).map((type) => (
-            <button
-              key={type}
-              onClick={() => addToBatch(type)}
-              disabled={batchQueue.length >= 4}
-              className="w-14 h-14 rounded-xl flex items-center justify-center shadow-lg transform transition-transform active:scale-90 disabled:opacity-50"
-              style={{ background: getElementBg(type), border: `2px solid ${getElementBorder(type)}`, boxShadow: `0 0 15px ${getElementShadow(type)}` }}
-            >
-              <ElementIcon type={type} className="text-white drop-shadow-md" size={24} />
-            </button>
-          ))}
-        </div>
       </div>
     </div>
   );
@@ -111,28 +161,28 @@ export function HUD() {
 
 function getElementBg(type: ElementType) {
   switch (type) {
-    case 'FIRE': return 'rgba(239, 68, 68, 0.2)'; // bg-red-500/20
-    case 'ICE': return 'rgba(59, 130, 246, 0.2)'; // bg-blue-500/20
-    case 'LIGHTNING': return 'rgba(234, 179, 8, 0.2)'; // bg-yellow-500/20
-    case 'NATURE': return 'rgba(34, 197, 94, 0.2)'; // bg-green-500/20
+    case 'FIRE': return 'rgba(239, 68, 68, 0.2)';
+    case 'WATER': return 'rgba(59, 130, 246, 0.2)';
+    case 'WIND': return 'rgba(234, 179, 8, 0.2)';
+    case 'EARTH': return 'rgba(34, 197, 94, 0.2)';
   }
 }
 
 function getElementBorder(type: ElementType) {
   switch (type) {
     case 'FIRE': return '#ef4444'; 
-    case 'ICE': return '#3b82f6';
-    case 'LIGHTNING': return '#eab308';
-    case 'NATURE': return '#22c55e';
+    case 'WATER': return '#3b82f6';
+    case 'WIND': return '#eab308';
+    case 'EARTH': return '#22c55e';
   }
 }
 
 function getElementShadow(type: ElementType) {
   switch (type) {
     case 'FIRE': return 'rgba(239, 68, 68, 0.2)';
-    case 'ICE': return 'rgba(59, 130, 246, 0.2)';
-    case 'LIGHTNING': return 'rgba(234, 179, 8, 0.2)';
-    case 'NATURE': return 'rgba(34, 197, 94, 0.2)';
+    case 'WATER': return 'rgba(59, 130, 246, 0.2)';
+    case 'WIND': return 'rgba(234, 179, 8, 0.2)';
+    case 'EARTH': return 'rgba(34, 197, 94, 0.2)';
   }
 }
 
@@ -140,9 +190,9 @@ function ElementIcon({ type, className, ...props }: { type: ElementType, classNa
   let colorClass = '';
   switch (type) {
     case 'FIRE': colorClass = 'text-red-400'; break;
-    case 'ICE': colorClass = 'text-blue-400'; break;
-    case 'LIGHTNING': colorClass = 'text-yellow-400'; break;
-    case 'NATURE': colorClass = 'text-green-400'; break;
+    case 'WATER': colorClass = 'text-blue-400'; break;
+    case 'WIND': colorClass = 'text-yellow-400'; break;
+    case 'EARTH': colorClass = 'text-green-400'; break;
   }
   return React.createElement(getIcon(type), { className: `${colorClass} ${className || ''}`, ...props });
 }
@@ -150,8 +200,8 @@ function ElementIcon({ type, className, ...props }: { type: ElementType, classNa
 function getIcon(type: ElementType) {
   switch (type) {
     case 'FIRE': return Flame;
-    case 'ICE': return Snowflake;
-    case 'LIGHTNING': return Zap;
-    case 'NATURE': return Leaf;
+    case 'WATER': return Droplet;
+    case 'WIND': return Wind;
+    case 'EARTH': return Mountain;
   }
 }

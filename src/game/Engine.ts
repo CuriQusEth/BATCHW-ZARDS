@@ -117,11 +117,12 @@ export class GameEngine {
           e.hp -= spell.damage;
           this.createExplosion(e.pos, this.getSpellColor(spell.type), 10);
           
-          if (spell.type === 'ICE') {
+          if (spell.type === 'WATER') {
             e.frozenTimer = 2.0; // Freeze for 2 seconds
-          } else if (spell.type === 'LIGHTNING') {
-            // Chain lightning logic could go here
-            this.createLightningEffect(e.pos);
+          } else if (spell.type === 'WIND') {
+            // Push back
+            e.pos = e.pos.sub(spell.vel.mult(50));
+            this.createLightningEffect(e.pos); // Reuse lightning effect visuals as wind
           }
           
           hit = true;
@@ -185,7 +186,7 @@ export class GameEngine {
         radius: 12,
         type: el,
         life: 2.0,
-        damage: el === 'FIRE' ? 50 : el === 'LIGHTNING' ? 30 : 25
+        damage: el === 'FIRE' ? 50 : el === 'EARTH' ? 60 : 30
       });
       // Cast effect
       this.createExplosion(this.playerPos, this.getSpellColor(el), 8);
@@ -241,10 +242,10 @@ export class GameEngine {
 
   private getSpellColor(type: ElementType) {
     switch(type) {
-      case 'FIRE': return '#ef4444'; // red
-      case 'ICE': return '#3b82f6'; // blue
-      case 'LIGHTNING': return '#eab308'; // yellow
-      case 'NATURE': return '#22c55e'; // green
+      case 'FIRE': return '#ef4444'; 
+      case 'WATER': return '#3b82f6';
+      case 'WIND': return '#eab308';
+      case 'EARTH': return '#22c55e';
     }
   }
 }

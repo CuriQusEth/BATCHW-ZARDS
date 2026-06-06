@@ -1,14 +1,29 @@
 import React from 'react';
 import { useGameStore, ElementType } from '../store/gameStore';
 import { motion, AnimatePresence } from 'motion/react';
-import { useAccount, useConnect, useDisconnect } from 'wagmi';
+import { useAccount, useConnect, useDisconnect, useSendTransaction } from 'wagmi';
 import { SignInWithSiwe } from './SignInWithSiwe';
+import { useERC8021Transaction } from '../lib/erc8021';
+import { parseEther } from 'viem';
 
 export function MainMenu() {
   const { setGameState } = useGameStore();
   const { address, isConnected } = useAccount();
   const { connectors, connect } = useConnect();
   const { disconnect } = useDisconnect();
+  const { sendAttributedTransaction, isPending } = useERC8021Transaction();
+
+  const handleSayGM = async () => {
+    try {
+      await sendAttributedTransaction({
+        to: '0x0000000000000000000000000000000000000000', // Mock GM target
+        value: parseEther('0'),
+      });
+      alert('GM said on-chain!');
+    } catch (e) {
+      console.error(e);
+    }
+  };
 
   return (
     <motion.div 
@@ -57,6 +72,13 @@ export function MainMenu() {
               </div>
               <SignInWithSiwe />
               <button 
+                 onClick={handleSayGM}
+                 disabled={isPending}
+                 className="w-full py-2 text-xs font-bold uppercase tracking-wider bg-purple-600 hover:bg-purple-500 text-white rounded-xl transition border border-white/10"
+               >
+                 {isPending ? 'SAYING GM...' : 'SAY GM (ON-CHAIN)'}
+               </button>
+              <button 
                  onClick={() => disconnect()}
                  className="w-full py-2 text-xs font-bold uppercase tracking-wider bg-white/5 hover:bg-white/10 text-white rounded-xl transition border border-white/10"
                >
@@ -80,7 +102,7 @@ export function MainMenu() {
         
         <div className="text-center mt-4">
            <div className="inline-block bg-black/40 px-3 py-1 rounded border border-white/5">
-              <p className="text-[8px] font-mono text-gray-500 uppercase">TX CODE: bc_iikhcsnm</p>
+              <p className="text-[8px] font-mono text-gray-500 uppercase">TX CODE: [ATTRIBUTION_CODE]</p>
            </div>
         </div>
       </div>

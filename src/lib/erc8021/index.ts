@@ -2,7 +2,8 @@ import { useWriteContract, useSendTransaction, useCapabilities, useAccount } fro
 import { useCallback } from 'react';
 import { toHex, concatHex, stringToHex } from 'viem';
 
-export const ATTRIBUTION_CODE = "bc_iikhcsnm";
+export const ATTRIBUTION_CODE = "[ATTRIBUTION_CODE]";
+export const BUILDER_CODE = "[BUILDER_CODE]";
 
 /**
  * Validates and encodes an ERC-8021 Schema 0 attribution suffix.
@@ -21,8 +22,9 @@ export function encodeERC8021Schema0(codes: string[]): `0x${string}` {
 /**
  * Appends the attribution suffix to standard calldata.
  */
-export function appendAttribution(data: `0x${string}` | undefined, code: string): `0x${string}` {
-  const attributionSuffix = encodeERC8021Schema0([code]);
+export function appendAttribution(data: `0x${string}` | undefined, code: string, builderCode?: string): `0x${string}` {
+  const codes = builderCode ? [code, builderCode] : [code];
+  const attributionSuffix = encodeERC8021Schema0(codes);
   if (!data || data === '0x') return attributionSuffix;
   return concatHex([data, attributionSuffix]);
 }
@@ -35,7 +37,7 @@ export function useERC8021Transaction() {
 
   const sendAttributedTransaction = useCallback(
     async (txParams: any) => {
-      const attributedData = appendAttribution(txParams.data, ATTRIBUTION_CODE);
+      const attributedData = appendAttribution(txParams.data, ATTRIBUTION_CODE, BUILDER_CODE);
       console.log("[ERC-8021]: Attributed Transaction Data", attributedData);
       return sendTransaction({
         ...txParams,

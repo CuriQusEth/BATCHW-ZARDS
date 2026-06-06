@@ -202,9 +202,9 @@ export function GameCanvas() {
 function getSpellColor(type: string) {
   switch(type) {
     case 'FIRE': return '#ef4444';
-    case 'ICE': return '#3b82f6';
-    case 'LIGHTNING': return '#eab308';
-    case 'NATURE': return '#22c55e';
+    case 'WATER': return '#3b82f6';
+    case 'WIND': return '#eab308';
+    case 'EARTH': return '#22c55e';
     default: return '#fff';
   }
 }
