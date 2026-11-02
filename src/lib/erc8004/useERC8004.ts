@@ -7,7 +7,7 @@ export function useERC8004() {
 
   const triggerAgent = async (agentAddress: `0x${string}`, data: `0x${string}`) => {
     // In a real scenario, this would call the EIP-8004 agent contract interface
-    return writeContractAsync({
+    return (writeContractAsync as any)({
       address: agentAddress,
       abi: [{
         name: 'execute',
@@ -15,7 +15,7 @@ export function useERC8004() {
         stateMutability: 'payable',
         inputs: [{ name: 'data', type: 'bytes' }],
         outputs: [],
-      }],
+      }] as const,
       functionName: 'execute',
       args: [data],
     });

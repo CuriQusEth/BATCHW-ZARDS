@@ -69,16 +69,22 @@ export function GameOver() {
         <span className="text-6xl font-black text-white font-mono drop-shadow-[0_0_20px_rgba(168,85,247,0.4)] mb-8">{score.toLocaleString()}</span>
 
         {isConnected ? (
-          <button 
-            onClick={handleSubmitScore}
-            disabled={isPending || isSigning || submitted || score === 0}
-            className={`w-full py-4 text-xs tracking-widest uppercase font-bold rounded-xl shadow-lg transition-all mb-4 border border-transparent
-              ${submitted ? 'bg-green-500/20 text-green-400 border-green-500/30 cursor-not-allowed' : 
-                (isPending || isSigning) ? 'bg-white/5 text-white/50 border-white/10 cursor-wait' : 
-                'bg-gradient-to-r from-purple-600 to-blue-600 text-white shadow-xl shadow-purple-600/40 hover:scale-105 active:scale-95 border-white/10'}`}
-          >
-            {submitted ? 'RUN RECORDED' : isSigning ? 'SIGNING...' : isPending ? 'TRANSACTING...' : 'RECORD THIS BATCH RUN ON-CHAIN'}
-          </button>
+          <>
+            <button 
+              onClick={handleSubmitScore}
+              disabled={isPending || isSigning || submitted || score === 0}
+              className={`w-full py-4 text-xs tracking-widest uppercase font-bold rounded-xl shadow-lg transition-all mb-4 border border-transparent
+                ${submitted ? 'bg-green-500/20 text-green-400 border-green-500/30 cursor-not-allowed' : 
+                  (isPending || isSigning) ? 'bg-white/5 text-white/50 border-white/10 cursor-wait' : 
+                  'bg-gradient-to-r from-purple-600 to-blue-600 text-white shadow-xl shadow-purple-600/40 hover:scale-105 active:scale-95 border-white/10'}`}
+            >
+              {submitted ? 'RUN RECORDED (200ms BLOCK)' : isSigning ? 'SIGNING...' : isPending ? 'TRANSACTING...' : 'RECORD THIS BATCH RUN ON-CHAIN'}
+            </button>
+            <div className="flex items-center justify-center gap-1.5 text-[9px] text-cyan-300/80 mb-4 font-mono">
+              <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-ping"></span>
+              <span>Sub-second settlement powered by Base Denim</span>
+            </div>
+          </>
         ) : (
           <div className="w-full text-center p-4 bg-white/5 border border-white/10 text-white/40 rounded-xl mb-4 text-[10px] uppercase tracking-widest font-semibold flex items-center justify-center">
             Connect wallet to save score

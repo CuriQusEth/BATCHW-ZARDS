@@ -9,7 +9,7 @@ export function GameCanvas() {
   const containerRef = useRef<HTMLDivElement>(null);
   const engineRef = useRef<GameEngine | null>(null);
   
-  const { gameState, setHealth, setScore, setGameState, batchQueue, clearBatch } = useGameStore();
+  const { gameState, setHealth, setScore, setGameState, clearBatch } = useGameStore();
   const castBatchFn = useGameStore((state) => state.castBatch);
   
   const [moveInput, setMoveInput] = useState(new Vec2(0, 0));

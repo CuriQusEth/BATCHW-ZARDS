@@ -49,9 +49,11 @@ export function MainMenu() {
       <motion.p
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        className="text-[10px] text-purple-300/60 uppercase tracking-widest font-semibold mb-12 text-center"
+        className="text-[10px] text-purple-300/60 uppercase tracking-widest font-semibold mb-12 text-center flex items-center justify-center gap-2"
       >
-        ERC-8021 Attribution Enabled
+        <span>ERC-8021 Attribution</span>
+        <span className="text-cyan-400 font-bold">•</span>
+        <span className="text-cyan-300">Base Denim (200ms Blocks)</span>
       </motion.p>
 
       <div className="flex flex-col gap-4 w-full max-w-sm">

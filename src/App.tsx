@@ -10,6 +10,8 @@ import { useERC8021Transaction } from './lib/erc8021';
 import { parseEther, encodeFunctionData } from 'viem';
 import { Sun } from 'lucide-react';
 
+import { DenimStatus } from './components/DenimStatus';
+
 function GameContent() {
   const gameState = useGameStore((state) => state.gameState);
   const { isConnected } = useAccount();
@@ -27,7 +29,7 @@ function GameContent() {
         value: parseEther('0'),
         data: gmData
       });
-      alert('GM sent on-chain!');
+      alert('GM sent on-chain via Base Denim!');
     } catch (e) {
       console.error(e);
     }
@@ -41,8 +43,10 @@ function GameContent() {
       {gameState === 'PLAYING' && <HUD />}
       {gameState === 'GAMEOVER' && <GameOver />}
       
-      {isConnected && (
-        <div className="absolute top-4 right-4 z-50">
+      {/* Top Bar with Denim Monitor & GM Button */}
+      <div className="absolute top-4 right-4 z-50 flex items-center gap-2">
+        <DenimStatus />
+        {isConnected && (
           <button
             onClick={sendGMTransaction}
             disabled={isPending}
@@ -51,8 +55,8 @@ function GameContent() {
             <Sun size={16} />
             {isPending ? 'SAYING GM...' : 'Say GM'}
           </button>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 }
