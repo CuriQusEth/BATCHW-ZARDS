@@ -82,7 +82,7 @@ export function GameOver() {
             </button>
             <div className="flex items-center justify-center gap-1.5 text-[9px] text-cyan-300/80 mb-4 font-mono">
               <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-ping"></span>
-              <span>Sub-second settlement powered by Base Denim</span>
+              <span>Sub-second settlement powered by Base Mainnet Denim (200ms)</span>
             </div>
           </>
         ) : (

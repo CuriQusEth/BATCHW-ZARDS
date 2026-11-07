@@ -53,7 +53,7 @@ export function MainMenu() {
       >
         <span>ERC-8021 Attribution</span>
         <span className="text-cyan-400 font-bold">•</span>
-        <span className="text-cyan-300">Base Denim (200ms Blocks)</span>
+        <span className="text-cyan-300">Base Mainnet Denim (200ms Blocks Live)</span>
       </motion.p>
 
       <div className="flex flex-col gap-4 w-full max-w-sm">

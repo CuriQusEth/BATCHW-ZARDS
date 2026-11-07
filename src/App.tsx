@@ -29,7 +29,7 @@ function GameContent() {
         value: parseEther('0'),
         data: gmData
       });
-      alert('GM sent on-chain via Base Denim!');
+      alert('GM sent on-chain via Base Mainnet Denim (200ms)!');
     } catch (e) {
       console.error(e);
     }
